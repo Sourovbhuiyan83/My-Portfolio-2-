@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sourov Bhuiyan — MERN Stack Developer</title>
+<link rel="icon" type="image/png" href="logo.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"]{
+  --bg:#07090e;--bg2:#0c0f1a;--surface:rgba(255,255,255,.04);
+  --surface2:rgba(255,255,255,.07);--border:rgba(255,255,255,.09);
+  --text:#eef2ff;--text2:#7c87a0;--text3:#3d4a5c;
+  --accent:#b57bee;--accent2:#7c83f5;--accent3:#38bdf8;
+  --glow:rgba(181,123,238,.18);--glow2:rgba(124,131,245,.12);
+  --card-bg:rgba(12,15,26,.85);--nav-bg:rgba(7,9,14,.9);
+  --img-overlay:rgba(7,9,14,.55);
+}
+:root[data-theme="light"]{
+  --bg:#f7f8ff;--bg2:#eef0f9;--surface:rgba(0,0,0,.04);
+  --surface2:rgba(0,0,0,.07);--border:rgba(0,0,0,.09);
+  --text:#0d1224;--text2:#4b5a78;--text3:#9ca3bc;
+  --accent:#7330d6;--accent2:#4545e8;--accent3:#0369a1;
+  --glow:rgba(115,48,214,.1);--glow2:rgba(69,69,232,.08);
+  --card-bg:rgba(255,255,255,.95);--nav-bg:rgba(247,248,255,.92);
+  --img-overlay:rgba(247,248,255,.4);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .4s,color .4s;cursor:none;}
+img{display:block;width:100%;height:100%;object-fit:cover;}
+a{text-decoration:none;}
+ul{list-style:none;}
+
+/* CURSOR */
+#cur{width:10px;height:10px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;transition:width .18s,height .18s;}
+#cur-ring{width:34px;height:34px;border:1.5px solid var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:.45;transition:width .22s,height .22s,opacity .22s;}
+.cur-big #cur{width:18px;height:18px;}
+.cur-big #cur-ring{width:52px;height:52px;opacity:.2;}
+@media(pointer:coarse){#cur,#cur-ring{display:none;}body{cursor:auto;}}
+
+/* SCROLL PROGRESS BAR */
+#spb{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent3));z-index:10001;transition:width .1s;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;padding:0 clamp(1rem,5vw,5%);display:flex;align-items:center;justify-content:space-between;background:var(--nav-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-links{display:flex;gap:2rem;}
+.nav-links a{font-size:.875rem;font-weight:500;color:var(--text2);letter-spacing:.4px;transition:color .25s;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:1px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .28s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a:hover::after{transform:scaleX(1);}
+.nav-r{display:flex;gap:.7rem;align-items:center;}
+.tog{width:46px;height:26px;background:var(--surface2);border:1px solid var(--border);border-radius:13px;cursor:pointer;position:relative;flex-shrink:0;}
+.tog-k{width:20px;height:20px;background:var(--accent);border-radius:50%;position:absolute;top:3px;left:3px;transition:transform .3s;font-size:11px;display:flex;align-items:center;justify-content:center;}
+[data-theme="light"] .tog-k{transform:translateX(20px);}
+.ham{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;}
+.ham span{width:22px;height:2px;background:var(--text);border-radius:2px;transition:all .3s;display:block;}
+.ham.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.ham.open span:nth-child(2){opacity:0;}
+.ham.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.m-nav{position:fixed;top:68px;left:0;right:0;z-index:999;background:var(--nav-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);padding:1.5rem clamp(1rem,5vw,5%);flex-direction:column;gap:1.2rem;transform:translateY(-20px);opacity:0;pointer-events:none;transition:all .3s;display:none;}
+.m-nav.open{transform:translateY(0);opacity:1;pointer-events:all;display:flex;}
+.m-nav a{font-size:1rem;font-weight:500;color:var(--text2);transition:color .2s;}
+.m-nav a:hover{color:var(--accent);}
+
+/* HERO */
+#hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center;padding:100px clamp(1rem,5vw,5%) 60px;position:relative;overflow:hidden;}
+.h-bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);will-change:transform;}
+.o1{width:700px;height:700px;background:rgba(181,123,238,.11);top:-180px;right:-120px;animation:of 9s ease-in-out infinite;}
+.o2{width:450px;height:450px;background:rgba(56,189,248,.07);bottom:-80px;left:-60px;animation:of 11s ease-in-out infinite reverse;}
+.o3{width:350px;height:350px;background:rgba(124,131,245,.09);top:42%;left:26%;animation:of 7s ease-in-out infinite 2s;}
+@keyframes of{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(18px,-16px) scale(1.04)}66%{transform:translate(-14px,11px) scale(.97)}}
+.gbg{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:65px 65px;mask-image:radial-gradient(ellipse at center,transparent 20%,black 80%);opacity:.35;}
+#pl{position:absolute;inset:0;z-index:0;pointer-events:none;}
+.pd,.pr{position:absolute;will-change:transform;transition:transform .1s linear;}
+.pd{border-radius:50%;background:var(--accent);opacity:.1;}
+.pr{border-radius:50%;border:1px solid var(--accent);opacity:.07;}
+
+/* HERO LEFT */
+.h-l{position:relative;z-index:1;}
+.h-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:6px 16px;font-size:.72rem;font-family:'Space Mono',monospace;color:var(--accent);letter-spacing:1.2px;margin-bottom:1.8rem;animation:fu .7s both;}
+.bdot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:pd2 2.2s infinite;}
+@keyframes pd2{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
+.h-name{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,7vw,6rem);font-weight:900;line-height:.93;letter-spacing:-2.5px;margin-bottom:1.1rem;animation:fu .7s .1s both;}
+.n1{display:block;color:var(--text);}
+.n2{display:block;background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 50%,var(--accent3) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 200%;animation:gs 5s ease infinite,fu .7s .18s both;}
+@keyframes gs{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.h-role{font-family:'Space Mono',monospace;font-size:clamp(.7rem,1.4vw,.85rem);color:var(--text2);letter-spacing:3px;text-transform:uppercase;margin-bottom:1.3rem;animation:fu .7s .25s both;}
+.h-desc{font-size:clamp(.9rem,1.4vw,1.05rem);color:var(--text2);line-height:1.85;max-width:450px;margin-bottom:2rem;animation:fu .7s .33s both;}
+.h-cta{display:flex;gap:.9rem;flex-wrap:wrap;animation:fu .7s .42s both;margin-bottom:2.8rem;}
+.bp{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:12px 24px;border-radius:10px;font-weight:600;font-size:.87rem;letter-spacing:.4px;transition:transform .3s,box-shadow .3s;border:none;cursor:pointer;box-shadow:0 6px 28px var(--glow);}
+.bp:hover{transform:translateY(-3px);box-shadow:0 12px 38px var(--glow);}
+.bo{display:inline-flex;align-items:center;gap:7px;background:transparent;color:var(--text);padding:12px 24px;border-radius:10px;font-weight:500;font-size:.87rem;border:1px solid var(--border);transition:all .3s;cursor:pointer;}
+.bo:hover{background:var(--surface);border-color:var(--accent);color:var(--accent);transform:translateY(-3px);}
+.h-stats{display:flex;gap:2rem;flex-wrap:wrap;animation:fu .7s .52s both;}
+.sn{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;line-height:1;color:var(--text);}
+.sn em{font-style:normal;color:var(--accent);}
+.sl{font-size:.7rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
+@keyframes fu{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+
+/* HERO RIGHT + SLIDER */
+.h-r{position:relative;z-index:1;display:flex;align-items:center;justify-content:flex-end;animation:fu .7s .25s both;}
+.h-img-wrap{position:relative;width:min(400px,100%);aspect-ratio:3/4;}
+.h-img-frame{width:100%;height:100%;border-radius:22px;overflow:hidden;border:1px solid rgba(181,123,238,.28);box-shadow:0 30px 80px var(--glow),0 0 0 1px var(--border);position:relative;}
+.h-img-frame::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,var(--img-overlay) 100%);pointer-events:none;z-index:2;}
+
+/* SLIDER */
+.hero-slider{position:relative;width:100%;height:100%;}
+.hero-slide{position:absolute;inset:0;opacity:0;transition:opacity 1s cubic-bezier(.4,0,.2,1),transform 1.2s cubic-bezier(.4,0,.2,1);transform:scale(1.07);}
+.hero-slide.active{opacity:1;transform:scale(1);}
+.hero-slide img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
+
+/* SLIDER DOTS */
+.slider-dots{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:5;}
+.sdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);border:1.5px solid rgba(255,255,255,.5);cursor:pointer;transition:all .35s;padding:0;flex-shrink:0;}
+.sdot.active{background:var(--accent);border-color:var(--accent);width:24px;border-radius:4px;box-shadow:0 0 12px var(--glow);}
+
+/* SLIDER PROGRESS */
+.slider-progress{position:absolute;bottom:0;left:0;height:2.5px;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:5;border-radius:0 2px 2px 0;}
+
+/* DECO RINGS */
+.h-deco{position:absolute;border-radius:22px;border:1px solid var(--accent);pointer-events:none;}
+.h-deco.dd1{inset:-9px;opacity:.18;}
+.h-deco.dd2{inset:-18px;opacity:.09;}
+
+/* FLOATING CHIPS */
+.ib{position:absolute;z-index:10;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:9px 13px;backdrop-filter:blur(12px);font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:7px;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.3);}
+.ib1{top:-18px;left:-28px;animation:fi1 4s ease-in-out infinite;}
+.ib2{bottom:55px;right:-28px;animation:fi2 5s ease-in-out infinite;}
+.ib3{bottom:-14px;left:18px;animation:fi3 4.5s ease-in-out infinite;}
+@keyframes fi1{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes fi2{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
+@keyframes fi3{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.scr{position:absolute;bottom:30px;left:clamp(1rem,5vw,5%);display:flex;align-items:center;gap:10px;z-index:1;font-family:'Space Mono',monospace;font-size:.65rem;color:var(--text3);letter-spacing:2.5px;animation:fu .7s .8s both;}
+.scr::after{content:'';width:46px;height:1px;background:linear-gradient(90deg,var(--accent),transparent);}
+
+/* SECTIONS */
+section{padding:clamp(55px,9vw,105px) clamp(1rem,5vw,5%);}
+.stag{display:inline-flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:.67rem;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:.7rem;}
+.stag::before{content:'';width:26px;height:1px;background:var(--accent);}
+.stit{font-family:'Playfair Display',serif;font-size:clamp(1.85rem,4.5vw,3rem);font-weight:900;letter-spacing:-1.5px;line-height:1.05;color:var(--text);margin-bottom:.7rem;}
+.ssub{font-size:.97rem;color:var(--text2);line-height:1.75;max-width:480px;margin-bottom:3.5rem;}
+.rv{opacity:0;transform:translateY(34px);transition:opacity .65s ease,transform .65s ease;}
+.rv.vis{opacity:1;transform:translateY(0);}
+.d1{transition-delay:.08s;}.d2{transition-delay:.16s;}.d3{transition-delay:.24s;}.d4{transition-delay:.32s;}.d5{transition-delay:.4s;}.d6{transition-delay:.48s;}
+
+/* ABOUT */
+#about{background:var(--bg2);}
+.ag{display:grid;grid-template-columns:1fr 1.35fr;gap:clamp(2rem,6vw,5rem);align-items:center;}
+.a-iw{position:relative;}
+.a-ic{border-radius:20px;overflow:hidden;border:1px solid var(--border);box-shadow:0 20px 60px var(--glow);aspect-ratio:4/5;position:relative;}
+.a-ic img{width:100%;height:100%;object-fit:cover;object-position:top center;}
+.a-ic::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(7,9,14,.45) 100%);}
+.asc{position:absolute;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:9px 14px;backdrop-filter:blur(12px);font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:7px;}
+.as1{top:18px;right:-18px;animation:fi1 4s ease-in-out infinite;}
+.as2{bottom:70px;left:-18px;animation:fi2 5s ease-in-out infinite;}
+.a-txt p{color:var(--text2);line-height:1.9;font-size:1rem;margin-bottom:1.1rem;}
+.a-txt strong{color:var(--text);font-weight:600;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:1.4rem;}
+.chip{padding:6px 14px;background:var(--surface);border:1px solid var(--border);border-radius:100px;font-size:.8rem;color:var(--text2);transition:all .3s;cursor:default;}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--glow);}
+
+/* SKILLS */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:1.3rem;}
+.sk{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:1.6rem;transition:all .35s;position:relative;overflow:hidden;}
+.sk::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));transform:scaleX(0);transform-origin:left;transition:transform .35s;}
+.sk:hover{border-color:var(--accent);transform:translateY(-5px);box-shadow:0 20px 48px var(--glow);}
+.sk:hover::before{transform:scaleX(1);}
+.ski{font-size:1.85rem;margin-bottom:.85rem;}
+.skc{font-family:'Space Mono',monospace;font-size:.67rem;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;}
+.sit{display:flex;flex-wrap:wrap;gap:7px;}
+.si{display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:7px;font-size:.82rem;font-weight:500;color:var(--text2);transition:all .25s;cursor:default;}
+.si:hover{background:var(--glow);border-color:var(--accent);color:var(--text);}
+.sd{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+
+/* PROJECTS */
+#projects{background:var(--bg2);}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;}
+.pc{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all .4s;display:flex;flex-direction:column;}
+.pc:hover{transform:translateY(-8px);border-color:var(--accent);box-shadow:0 28px 65px var(--glow);}
+.pc.feat{grid-column:span 2;}
+.pth{overflow:hidden;position:relative;aspect-ratio:16/9;}
+.pc.feat .pth{aspect-ratio:2/1;}
+.pth img{width:100%;height:100%;object-fit:cover;transition:transform .5s;}
+.pc:hover .pth img{transform:scale(1.06);}
+.pto{position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(7,9,14,.7) 100%);}
+.pnum{position:absolute;top:11px;left:13px;font-family:'Space Mono',monospace;font-size:.67rem;color:rgba(255,255,255,.5);letter-spacing:1px;}
+.pfbadge{position:absolute;top:11px;right:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:3px 10px;border-radius:100px;font-size:.67rem;font-weight:700;letter-spacing:.5px;}
+.pb{padding:1.3rem;flex:1;display:flex;flex-direction:column;}
+.pt{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:.4rem;}
+.pd3{font-size:.85rem;color:var(--text2);line-height:1.75;flex:1;margin-bottom:.85rem;}
+.pst{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:.85rem;}
+.stg{padding:3px 9px;background:var(--surface);border:1px solid var(--border);border-radius:4px;font-size:.69rem;font-family:'Space Mono',monospace;color:var(--accent);}
+.pls{display:flex;gap:1rem;}
+.pl{display:inline-flex;align-items:center;gap:5px;font-size:.79rem;font-weight:600;color:var(--text2);transition:color .25s;}
+.pl:hover{color:var(--accent);}
+.pl svg{width:12px;height:12px;}
+
+/* CONTACT */
+.cw{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,5rem);align-items:start;}
+.ct p{color:var(--text2);line-height:1.85;font-size:1rem;margin-bottom:2rem;}
+.sls{display:flex;flex-direction:column;gap:.85rem;}
+.sl2{display:flex;align-items:center;gap:.85rem;padding:12px 15px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text2);font-size:.87rem;font-weight:500;transition:all .3s;}
+.sl2:hover{background:var(--glow);border-color:var(--accent);color:var(--accent);transform:translateX(6px);}
+.sic{width:35px;height:35px;background:var(--surface2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
+.sic svg{width:16px;height:16px;}
+.cf{background:var(--card-bg);border:1px solid var(--border);border-radius:18px;padding:1.7rem;}
+.cfl{display:block;font-family:'Space Mono',monospace;font-size:.67rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.cfi,.cfta{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.92rem;outline:none;transition:border-color .3s,box-shadow .3s;margin-bottom:1rem;}
+.cfta{resize:vertical;min-height:92px;margin-bottom:1.1rem;}
+.cfi:focus,.cfta:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow);}
+.cfi::placeholder,.cfta::placeholder{color:var(--text3);}
+
+/* FOOTER */
+footer{padding:1.7rem clamp(1rem,5vw,5%);border-top:1px solid var(--border);background:var(--bg2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.fl{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ft{font-size:.77rem;color:var(--text3);font-family:'Space Mono',monospace;}
+
+/* TOAST */
+.toast{position:fixed;bottom:26px;right:26px;z-index:9000;background:var(--card-bg);border:1px solid var(--accent);border-radius:12px;padding:12px 20px;font-size:.84rem;color:var(--text);backdrop-filter:blur(14px);transform:translateY(80px);opacity:0;transition:all .4s;pointer-events:none;box-shadow:0 8px 30px var(--glow);}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  #hero{grid-template-columns:1fr 1fr;}
+  .pg{grid-template-columns:repeat(2,1fr);}
+  .pc.feat{grid-column:span 2;}
+}
+@media(max-width:768px){
+  #hero{grid-template-columns:1fr;padding-top:88px;text-align:center;}
+  .h-r{order:-1;justify-content:center;}
+  .h-img-wrap{width:min(260px,70%);}
+  .ib1,.ib2,.ib3{display:none;}
+  .h-cta{justify-content:center;}
+  .h-stats{justify-content:center;}
+  .h-desc{margin:0 auto 2rem;}
+  .h-badge{margin:0 auto 1.8rem;}
+  .scr{display:none;}
+  .nav-links{display:none;}
+  .ham{display:flex;}
+  .ag{grid-template-columns:1fr;}
+  .a-iw{display:none;}
+  .pg{grid-template-columns:1fr;}
+  .pc.feat{grid-column:span 1;}
+  .cw{grid-template-columns:1fr;}
+  footer{justify-content:center;text-align:center;}
+}
+@media(max-width:480px){
+  .h-name{letter-spacing:-1.5px;}
+  .h-stats{gap:1.5rem;}
+  .bp,.bo{padding:11px 19px;font-size:.83rem;}
+}
+</style>
+</head>
+<body>
+
+<div id="spb"></div>
+<div id="cur"></div>
+<div id="cur-ring"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">SB</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-r">
+    <button class="tog" id="themeBtn" title="Toggle theme"><div class="tog-k">☽</div></button>
+    <button class="ham" id="hamBtn"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="m-nav" id="mNav">
+  <a href="#about">About</a><a href="#skills">Skills</a>
+  <a href="#projects">Projects</a><a href="#contact">Contact</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="h-bg">
+    <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+    <div class="gbg"></div>
+  </div>
+  <div id="pl">
+    <div class="pd" data-spd="0.04" style="width:80px;height:80px;top:15%;left:8%;"></div>
+    <div class="pd" data-spd="0.06" style="width:40px;height:40px;top:70%;left:55%;"></div>
+    <div class="pd" data-spd="0.03" style="width:110px;height:110px;top:55%;left:6%;"></div>
+    <div class="pr" data-spd="0.025" style="width:190px;height:190px;top:20%;right:6%;"></div>
+    <div class="pr" data-spd="0.05" style="width:115px;height:115px;top:60%;right:22%;"></div>
+    <div class="pr" data-spd="0.02" style="width:280px;height:280px;top:36%;left:38%;"></div>
+  </div>
+
+  <!-- Left -->
+  <div class="h-l">
+    <div class="h-badge"><div class="bdot"></div>Available for work</div>
+    <h1 class="h-name"><span class="n1">Sourov</span><span class="n2">Bhuiyan</span></h1>
+    <p class="h-role">MERN Stack Developer</p>
+    <p class="h-desc">Crafting digital experiences with clean code and creative design. I build web apps that are fast, beautiful, and meaningful — end to end.</p>
+    <div class="h-cta">
+      <a href="#projects" class="bp">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+        View Projects
+      </a>
+      <a href="#contact" class="bo">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+        Get in Touch
+      </a>
+    </div>
+    <div class="h-stats">
+      <div><div class="sn">6<em>+</em></div><div class="sl">Projects</div></div>
+      <div><div class="sn">5<em>+</em></div><div class="sl">Technologies</div></div>
+      <div><div class="sn">100<em>%</em></div><div class="sl">Dedication</div></div>
+    </div>
+  </div>
+
+  <!-- Right — Auto Image Slider -->
+  <div class="h-r">
+    <div class="h-img-wrap">
+      <div class="h-img-frame">
+        <div class="hero-slider" id="heroSlider">
+          <div class="hero-slide active">
+            <img src="my img.jpg" alt="Sourov Bhuiyan">
+          </div>
+          <div class="hero-slide">
+            <img src="my img1.png" alt="Sourov Bhuiyan">
+          </div>
+          <div class="hero-slide">
+            <img src="my img2.png" alt="Sourov Bhuiyan">
+          </div>
+          <div class="slider-dots" id="sliderDots">
+            <button class="sdot active" data-idx="0"></button>
+            <button class="sdot" data-idx="1"></button>
+            <button class="sdot" data-idx="2"></button>
+          </div>
+          <div class="slider-progress" id="sliderProgress"></div>
+        </div>
+        <div class="h-deco dd1"></div>
+        <div class="h-deco dd2"></div>
+      </div>
+      <div class="ib ib1">🔥 MERN Stack</div>
+      <div class="ib ib2"><span style="color:var(--accent)">⚡</span> Open to Work</div>
+      <div class="ib ib3">🚀 6+ Projects</div>
+    </div>
+  </div>
+
+  <div class="scr">SCROLL DOWN</div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="ag">
+    <div class="a-iw rv">
+      <div class="a-ic">
+        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&q=80&auto=format&fit=crop" alt="Developer working">
+      </div>
+      <div class="asc as1">💻 Clean Coder</div>
+      <div class="asc as2">🎯 Detail-Oriented</div>
+    </div>
+    <div class="rv d1">
+      <div class="stag">About Me</div>
+      <h2 class="stit">I build things<br>for the web.</h2>
+      <div class="a-txt">
+        <p>Hi, I'm <strong>Sourov Bhuiyan</strong> — a passionate MERN Stack Developer who loves turning complex problems into elegant, user-friendly solutions.</p>
+        <p>I specialize in the full MERN ecosystem — MongoDB, Express, React, and Node.js. Whether it's a pixel-perfect UI or a robust backend API, I bring precision and creativity to every project.</p>
+        <p>Always learning, always building. I'm driven by the idea that great software can genuinely change people's lives.</p>
+      </div>
+      <div class="chips">
+        <span class="chip">Problem Solver</span><span class="chip">Clean Code</span>
+        <span class="chip">Team Player</span><span class="chip">Fast Learner</span>
+        <span class="chip">Creative Thinker</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="rv">
+    <div class="stag">Expertise</div>
+    <h2 class="stit">Skills & Tools</h2>
+    <p class="ssub">The MERN stack and everything around it — tools I use every day to ship great products.</p>
+  </div>
+  <div class="sg">
+    <div class="sk rv d1"><div class="ski">⚛️</div><div class="skc">Frontend</div><div class="sit"><div class="si"><span class="sd"></span>HTML5</div><div class="si"><span class="sd"></span>CSS3</div><div class="si"><span class="sd"></span>JavaScript</div><div class="si"><span class="sd"></span>React.js</div><div class="si"><span class="sd"></span>Redux</div></div></div>
+    <div class="sk rv d2"><div class="ski">⚙️</div><div class="skc">Backend</div><div class="sit"><div class="si"><span class="sd"></span>Node.js</div><div class="si"><span class="sd"></span>Express.js</div><div class="si"><span class="sd"></span>REST APIs</div><div class="si"><span class="sd"></span>JWT Auth</div></div></div>
+    <div class="sk rv d3"><div class="ski">🗄️</div><div class="skc">Database</div><div class="sit"><div class="si"><span class="sd"></span>MongoDB</div><div class="si"><span class="sd"></span>Mongoose</div><div class="si"><span class="sd"></span>Firebase</div></div></div>
+    <div class="sk rv d4"><div class="ski">🛠️</div><div class="skc">Tools</div><div class="sit"><div class="si"><span class="sd"></span>Git & GitHub</div><div class="si"><span class="sd"></span>VS Code</div><div class="si"><span class="sd"></span>Postman</div><div class="si"><span class="sd"></span>npm / yarn</div></div></div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="rv">
+    <div class="stag">My Work</div>
+    <h2 class="stit">Featured Projects</h2>
+    <p class="ssub">Real-world applications built with the MERN stack — from idea to deployment.</p>
+  </div>
+  <div class="pg">
+    <div class="pc feat rv d1">
+      <div class="pth">
+        <img src="soikot-book.png" alt="E-Commerce Platform">
+        <div class="pto"></div><div class="pnum">01</div><div class="pfbadge">Featured</div>
+      </div>
+      <div class="pb">
+        <h3 class="pt">E-Commerce Platform</h3>
+        <p class="pd3">Full-featured online store with product management, cart, user auth, and payment gateway. Built for performance and scale.</p>
+        <div class="pst"><span class="stg">React</span><span class="stg">Node.js</span><span class="stg">MongoDB</span><span class="stg">Express</span><span class="stg">Redux</span>
+        <a href="https://sourovbhuiyan83.github.io/KSB-book/" target="_blank" class="bp"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>View Projects</a></div>
+        <div class="pls">
+          <a href="#" class="pl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
+          <a href="#" class="pl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Live Demo</a>
+        </div>
+      </div>
+    </div>
+    <div class="pc rv d2">
+      <div class="pth">
+        <img src="bongo chat.png" alt="Chat App">
+        <div class="pto"></div><div class="pnum">02</div>
+      </div>
+      <div class="pb">
+        <h3 class="pt">Real-Time Chat App</h3>
+        <p class="pd3">Live messaging with rooms, notifications, and media sharing powered by Socket.io.</p>
+        <div class="pst"><span class="stg">React</span><span class="stg">Socket.io</span><span class="stg">Node.js</span>
+        <a href="https://sourovbhuiyan83.github.io/BongoChat/" class="bp"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>View Projects</a></div>
+        <div class="pls">
+          <a href="#" class="pl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
+          <a href="#" class="pl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Live</a>
+        </div>
+      </div>
+    </div>
+    <div class="pc rv d1">
+      <div class="pth">
+        <img src="bangladesh pulse.png" alt="Analytics Dashboard">
+        <div class="pto"></div><div class="pnum">03</div>
+      </div>
+      <div class="pb">
+        <h3 class="pt">Analytics Dashboard</h3>
+        <p class="pd3">Interactive data visualization with real-time charts, KPI tracking and filters.</p>
+        <div class="pst"><span class="stg">React</span><span class="stg">Chart.js</span><span class="stg">Node.js</span>
+        <a href="https://bangladeshpulse.github.io/.com/" class="bp"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>View Projects</a></div>
+        <div class="pls">
+          <a href="#" class="pl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Live Demo</a>
+        </div>
+      </div>
+    </div>
+    <div class="pc rv d2">
+      <div class="pth">
+        <img src="neogi.png" alt="Blog Platform">
+        <div class="pto"></div><div class="pnum">04</div>
+      </div>
+      <div class="pb">
+        <h3 class="pt">Blog Platform</h3>
+        <p class="pd3">Full-stack blog with rich text editor, categories, comments and SEO optimization.</p>
+        <div class="pst"><span class="stg">React</span><span class="stg">Express</span><span class="stg">MongoDB</span>
+        <a href="https://neogi-for-netrokona-3.github.io/.com/" target="_blank" class="bp"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>View Projects</a></div>
+        <div class="pls">
+          <a href="#" class="pl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
+        </div>
+      </div>
+    </div>
+    <div class="pc rv d3">
+      <div class="pth">
+        <img src="bg remove.png" alt="AI BG Remover">
+        <div class="pto"></div><div class="pnum">05</div>
+      </div>
+      <div class="pb">
+        <h3 class="pt">AI BG Remover</h3>
+        <p class="pd3">Smart task management with AI-powered prioritization, scheduling and progress tracking.</p>
+        <div class="pst"><span class="stg">React</span><span class="stg">OpenAI</span><span class="stg">Express</span>
+        <a href="https://sourovbhuiyan83.github.io/sourov-bg-remover/" class="bp"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>View Projects</a></div>
+        <div class="pls">
+          <a href="#" class="pl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
+          <a href="#" class="pl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Live</a>
+        </div>
+      </div>
+    </div>
+    <div class="pc rv d4">
+      <div class="pth">
+        <img src="wedher app.png" alt="Weather App">
+        <div class="pto"></div><div class="pnum">06</div>
+      </div>
+      <div class="pb">
+        <h3 class="pt">Food Weather App</h3>
+        <p class="pd3">Restaurant ordering platform with real-time order tracking, payments, and driver dashboard.</p>
+        <div class="pst"><span class="stg">React</span><span class="stg">MongoDB</span><span class="stg">Node.js</span>
+        <a href="https://sourovbhuiyan83.github.io/weather-app/" class="bp"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>View Projects</a></div>
+        <div class="pls">
+          <a href="#" class="pl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
+        </div>
+      </div>
+    </div>
+    <div class="pc rv d4">
+      <div class="pth">
+        <img src="village website.jpg" alt="village website">
+        <div class="pto"></div><div class="pnum">06</div>
+      </div>
+      <div class="pb">
+        <h3 class="pt">village website</h3>
+        <p class="pd3">This village website provides essential information about the village, including its history, culture, education, and development activities.</p>
+        <div class="pst"><span class="stg">React</span><span class="stg">MongoDB</span><span class="stg">Node.js</span>
+        <a href="https://sourovbhuiyan83.github.io/weather-app/" class="bp"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>View Projects</a></div>
+        <div class="pls">
+          <a href="#" class="pl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="rv">
+    <div class="stag">Contact</div>
+    <h2 class="stit">Let's Work<br>Together.</h2>
+  </div>
+  <div class="cw">
+    <div class="rv d1">
+      <div class="ct"><p>Have a project in mind? Want to collaborate? I'm always open to new opportunities and interesting conversations. Let's build something amazing.</p></div>
+      <div class="sls">
+        <a href="mailto:sourovbhuiyan83@gmail.com" class="sl2"><div class="sic">📧</div><span>sourovbhuiyan83@gmail.com</span></a>
+        <a href="https://github.com/Sourovbhuiyan83" class="sl2" target="_blank"><div class="sic"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></div><span>GitHub</span></a>
+        <a href="https://www.linkedin.com/in/sourov-bhuiayan-611a22383" class="sl2" target="_blank"><div class="sic"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7H10v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></div><span>LinkedIn</span></a>
+        <a href="https://wa.me/8801869107564?text=Hello%2C%20big%20fan%20vai" class="sl2" target="_blank"><div class="sic">💬</div><span>WhatsApp</span></a>
+        <a href="https://www.facebook.com/sourov.ahomed.2024/" class="sl2" target="_blank"><div class="sic"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></div><span>Facebook</span></a>
+      </div>
+    </div>
+    <div class="cf rv d2">
+      <label class="cfl">Your Name</label>
+      <input type="text" class="cfi" placeholder="John Doe">
+      <label class="cfl">Email</label>
+      <input type="email" class="cfi" placeholder="john@example.com">
+      <label class="cfl">Subject</label>
+      <input type="text" class="cfi" placeholder="Project Inquiry">
+      <label class="cfl">Message</label>
+      <textarea class="cfta" placeholder="Tell me about your project..."></textarea>
+      <button class="bp" id="sendBtn" style="width:100%;justify-content:center;border:none;">Send Message ✨</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="ft">© 2025 Sourov Bhuiyan</div>
+  <div class="fl">SB</div>
+  <div class="ft">Built with passion & coffee ☕</div>
+</footer>
+
+<div class="toast" id="toast">✅ Message sent! I'll get back to you soon.</div>
+
+<script>
+// ── AUTO IMAGE SLIDER ─────────────────────────────────────────────
+(function(){
+  var slides   = document.querySelectorAll('.hero-slide');
+  var dots     = document.querySelectorAll('#sliderDots .sdot');
+  var bar      = document.getElementById('sliderProgress');
+  var total    = slides.length;
+  var current  = 0;
+  var DELAY    = 2000;
+
+  function goTo(n){
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (n + total) % total;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        bar.style.transition = 'width ' + DELAY + 'ms linear';
+        bar.style.width = '100%';
+      });
+    });
+  }
+
+  dots.forEach(function(d){
+    d.addEventListener('click', function(){ goTo(parseInt(d.dataset.idx)); });
+  });
+
+  goTo(0);
+  setInterval(function(){ goTo(current + 1); }, DELAY);
+})();
+
+// ── CURSOR ───────────────────────────────────────────────────────
+var cur = document.getElementById('cur');
+var ring = document.getElementById('cur-ring');
+var mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function tick(){rx+=(mx-rx)*.13;ry+=(my-ry)*.13;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(tick);})();
+document.querySelectorAll('a,button,.pc,.si,.chip,.sl2').forEach(function(el){
+  el.addEventListener('mouseenter',function(){document.body.classList.add('cur-big');});
+  el.addEventListener('mouseleave',function(){document.body.classList.remove('cur-big');});
+});
+
+// ── PARALLAX ─────────────────────────────────────────────────────
+var pEls = document.querySelectorAll('#pl .pd,#pl .pr');
+document.addEventListener('mousemove',function(e){
+  var cx=window.innerWidth/2,cy=window.innerHeight/2;
+  var dx=(e.clientX-cx)/cx,dy=(e.clientY-cy)/cy;
+  pEls.forEach(function(el){var s=parseFloat(el.dataset.spd||.04);el.style.transform='translate('+(dx*s*110)+'px,'+(dy*s*70)+'px)';});
+});
+if(window.DeviceOrientationEvent){
+  window.addEventListener('deviceorientation',function(e){
+    var dx=(e.gamma||0)/45,dy=(e.beta||0)/45;
+    pEls.forEach(function(el){var s=parseFloat(el.dataset.spd||.04);el.style.transform='translate('+(dx*s*55)+'px,'+(dy*s*35)+'px)';});
+  });
+}
+
+// ── SCROLL PROGRESS ──────────────────────────────────────────────
+var spb = document.getElementById('spb');
+window.addEventListener('scroll',function(){spb.style.width=((window.scrollY/(document.body.scrollHeight-window.innerHeight))*100)+'%';});
+
+// ── REVEAL ON SCROLL ─────────────────────────────────────────────
+var rObs = new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('vis');});},{threshold:0.1});
+document.querySelectorAll('.rv').forEach(function(el){rObs.observe(el);});
+
+// ── THEME TOGGLE ─────────────────────────────────────────────────
+var tb = document.getElementById('themeBtn');
+var tk = tb.querySelector('.tog-k');
+tb.addEventListener('click',function(){
+  var d = document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme', d?'light':'dark');
+  tk.textContent = d?'☀':'☽';
+});
+
+// ── HAMBURGER ────────────────────────────────────────────────────
+var ham = document.getElementById('hamBtn');
+var mn  = document.getElementById('mNav');
+ham.addEventListener('click',function(){ham.classList.toggle('open');mn.classList.toggle('open');});
+mn.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){ham.classList.remove('open');mn.classList.remove('open');});});
+
+// ── SMOOTH SCROLL ────────────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener('click',function(e){
+    e.preventDefault();
+    var t=document.querySelector(a.getAttribute('href'));
+    if(t) t.scrollIntoView({behavior:'smooth'});
+  });
+});
+
+// ── CONTACT TOAST ────────────────────────────────────────────────
+document.getElementById('sendBtn').addEventListener('click',function(){
+  var toast=document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(function(){toast.classList.remove('show');},3500);
+});
+</script>
+</body>
+</html>
